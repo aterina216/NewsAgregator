@@ -6,15 +6,17 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.example.newsagregator.data.repository.NewsRepositoryImpl
 import com.example.newsagregator.domain.repository.NewsRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 
-class NewsFeedViewModel(private val repository: NewsRepositoryImpl): ViewModel() {
+class NewsFeedViewModel(private val repository: NewsRepository): ViewModel() {
 
     private val _selectedCategory = MutableStateFlow("general")
     val selectedCategory: StateFlow<String> = _selectedCategory
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val news = _selectedCategory.flatMapLatest {
         category ->
         Log.d("ViewModel", "Загружаем категорию: $category")

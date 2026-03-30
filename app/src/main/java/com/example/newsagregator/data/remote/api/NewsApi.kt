@@ -12,7 +12,7 @@ interface NewsApi {
     suspend fun getActualNews(
         @Query("country") country: String = "us",
         @Query("category") category: String = "general",
-        @Query("api_key") api_Key: String = API_KEY,
+        @Query("apiKey") apiKey: String = API_KEY,
         @Query("pageSize") pageSize: Int = 20,
         @Query("page") page: Int
     ): Response<NewsResponseDTO>

@@ -1,5 +1,6 @@
 package com.example.newsagregator.data.repository
 
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
@@ -14,8 +15,9 @@ import com.example.newsagregator.domain.models.Article
 import com.example.newsagregator.domain.repository.NewsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class NewsRepositoryImpl(
+class NewsRepositoryImpl @Inject constructor(
     private val api: NewsApi,
     private val database: ArticleDataBase
 ): NewsRepository {
@@ -23,6 +25,7 @@ class NewsRepositoryImpl(
 
     @kotlin.OptIn(ExperimentalPagingApi::class)
     override fun getNews(category: String): Flow<PagingData<Article>> {
+        Log.d("Repository", "getNews for $category")
         val pagingSourceFactory = {database.getDao().getArticlesByCategory(category)}
         return Pager(
             config = PagingConfig(pageSize = 20, enablePlaceholders = false),

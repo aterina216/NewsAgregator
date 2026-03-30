@@ -12,7 +12,7 @@ class ViewModelFactoryModule {
 
     @Provides
     @Singleton
-    fun provideViewModelFactory(repo: NewsRepositoryImpl): NewViewmodelFactory {
+    fun provideViewModelFactory(repo: NewsRepository): NewViewmodelFactory {
         return NewViewmodelFactory(repo)
     }
 }

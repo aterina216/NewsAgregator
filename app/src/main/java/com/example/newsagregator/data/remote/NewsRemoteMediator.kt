@@ -1,11 +1,12 @@
 package com.example.newsagregator.data.remote
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
-import coil.network.HttpException
+import retrofit2.HttpException
 import com.example.newsagregator.data.db.database.ArticleDataBase
 import com.example.newsagregator.data.db.entities.ArticleEntity
 import com.example.newsagregator.data.remote.api.NewsApi
@@ -18,21 +19,23 @@ class NewsRemoteMediator(
     private val database: ArticleDataBase,
     private val category: String
 ): RemoteMediator<Int, ArticleEntity>() {
+
+    private var nextPage = 1
+
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, ArticleEntity>
     ): MediatorResult {
+
+        Log.d("RemoteMediator", "load called: type=$loadType, category=$category")
+
         val page = when (loadType) {
-            LoadType.REFRESH -> 1
-            LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
-            LoadType.APPEND -> {
-                val lastItem = state.lastItemOrNull()
-                if(lastItem == null) 1
-                else state.pages.lastOrNull()?.let {
-                    pageData ->
-                    (pageData.data.size / state.config.pageSize) + 1
-                } ?: 1
+            LoadType.REFRESH -> {
+                nextPage = 1
+                1
             }
+            LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
+            LoadType.APPEND -> nextPage
         }
 
         return try {
@@ -43,6 +46,11 @@ class NewsRemoteMediator(
                 page = page
             )
 
+            Log.d("RemoteMediator", "Response code: ${response.code()}")
+            if (!response.isSuccessful) {
+                Log.e("RemoteMediator", "Error body: ${response.errorBody()?.string()}")
+            }
+
             val articles = response.body()?.articles ?: emptyList()
             val entities = articles.map { it.toEntity(category) }
 
@@ -52,12 +60,19 @@ class NewsRemoteMediator(
                 }
                 database.getDao().insertAll(entities)
             }
+
+            if(articles.isNotEmpty()) {
+                nextPage++
+            }
+
             MediatorResult.Success(endOfPaginationReached = articles.isEmpty())
         }
         catch (e: IOException) {
+            Log.e("RemoteMediator", "IOException: ${e.message}", e)
             MediatorResult.Error(e)
         }
         catch (e: HttpException) {
+            Log.e("RemoteMediator", "HttpException: ${e.message}, code: ${e.code()}", e)
             MediatorResult.Error(e)
         }
     }

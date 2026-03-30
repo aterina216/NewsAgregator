@@ -10,9 +10,9 @@ object Mapper {
     fun Article.toEntity(category: String): ArticleEntity = ArticleEntity(
         url = url,
         title = title,
-        description = description,
-        content = content,
-        imageUrl = urlToImage,
+        description = description ?: "",
+        content = content ?: "",
+        imageUrl = urlToImage ?: " ",
         publishedAt = publishedAt.toTimeStamp(),
         sourceName = source.name,
         category = category,

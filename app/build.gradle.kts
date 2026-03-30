@@ -83,8 +83,8 @@ dependencies {
     implementation("androidx.room:room-paging:2.8.4")
     ksp ("androidx.room:room-compiler:2.8.4")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("androidx.paging:paging-compose:3.2.1")
-    implementation("androidx.paging:paging-runtime-ktx:3.2.1")
+    implementation("androidx.paging:paging-compose:3.2.0")
+    implementation("androidx.paging:paging-runtime-ktx:3.2.0")
 
     implementation ("com.google.dagger:dagger:2.59.2")
     kapt ("com.google.dagger:dagger-compiler:2.59.2")

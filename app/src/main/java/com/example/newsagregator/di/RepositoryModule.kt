@@ -4,16 +4,15 @@ import com.example.newsagregator.data.db.database.ArticleDataBase
 import com.example.newsagregator.data.remote.api.NewsApi
 import com.example.newsagregator.data.repository.NewsRepositoryImpl
 import com.example.newsagregator.domain.repository.NewsRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class RepositoryModule {
+abstract class RepositoryModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideRepository(api: NewsApi, dataBase: ArticleDataBase): NewsRepositoryImpl {
-        return NewsRepositoryImpl(api, dataBase)
-    }
+    abstract fun provideRepository(impl: NewsRepositoryImpl): NewsRepository
 }

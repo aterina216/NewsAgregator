@@ -25,4 +25,10 @@ interface ArticleDao {
 
     @Update
     suspend fun update(article: ArticleEntity)
+
+    @Query("DELETE FROM articles WHERE searchQuery = :query")
+    suspend fun clearSearchResults(query: String)
+
+    @Query("SELECT * FROM articles WHERE searchQuery = :query ORDER BY publishedAt DESC")
+    fun getArticlesBySearchQuery(query: String): PagingSource<Int, ArticleEntity>
 }

@@ -14,17 +14,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
@@ -36,14 +41,25 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.myapplication.R
 import com.example.newsagregator.domain.models.Article
+import com.example.newsagregator.ui.components.Categories
 import com.example.newsagregator.ui.components.NewsCard
 import com.example.newsagregator.ui.viewmodels.NewsFeedViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
+import com.example.newsagregator.ui.components.CategoryChips
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(viewModel: NewsFeedViewModel) {
 
-    val pagingItems: LazyPagingItems<Article> = viewModel.news.collectAsLazyPagingItems()
+    val categories = Categories.values().map { it.named }
+    val selectedCategory by viewModel.selectedCategory.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val padingItems = if (searchQuery.isBlank()) {
+        viewModel.news.collectAsLazyPagingItems()
+    } else {
+        viewModel.searchResults.collectAsLazyPagingItems()
+    }
 
     Scaffold(
         topBar = {
@@ -54,22 +70,45 @@ fun Home(viewModel: NewsFeedViewModel) {
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
+
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
-                    IconButton(onClick = {pagingItems.refresh()}) {
+                    IconButton(onClick = { padingItems.refresh() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Обновить")
                     }
                 }
             )
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            CategoryChips(
+                categories = categories,
+                selectedCategory = selectedCategory,
+                onCategorySelected = { viewModel.selectedCategory(it) }
+            )
+
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = viewModel::updateSearchQuery,
+                placeholder = { Text("Поиск новостей") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = RoundedCornerShape(24.dp),
+                colors = OutlinedTextFieldDefaults.colors()
+            )
+
             when {
-                pagingItems.loadState.refresh is LoadState.Loading -> {
+                padingItems.loadState.refresh is LoadState.Loading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -81,8 +120,8 @@ fun Home(viewModel: NewsFeedViewModel) {
                     }
                 }
 
-                pagingItems.loadState.refresh is LoadState.Error -> {
-                    val error = pagingItems.loadState.refresh as LoadState.Error
+                padingItems.loadState.refresh is LoadState.Error -> {
+                    val error = padingItems.loadState.refresh as LoadState.Error
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -98,8 +137,10 @@ fun Home(viewModel: NewsFeedViewModel) {
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text("Не удалось загрузить новости",
-                            style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "Не удалось загрузить новости",
+                            style = MaterialTheme.typography.titleMedium
+                        )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -110,7 +151,8 @@ fun Home(viewModel: NewsFeedViewModel) {
                         )
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Button(onClick = { pagingItems.refresh() },
+                        Button(
+                            onClick = { padingItems.refresh() },
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Text("Повторить")
@@ -118,7 +160,7 @@ fun Home(viewModel: NewsFeedViewModel) {
                     }
                 }
 
-                pagingItems.itemCount == 0 -> {
+                padingItems.itemCount == 0 -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -132,8 +174,8 @@ fun Home(viewModel: NewsFeedViewModel) {
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(pagingItems.itemCount) { index ->
-                            val article = pagingItems[index]
+                        items(padingItems.itemCount) { index ->
+                            val article = padingItems[index]
                             if (article != null) {
                                 NewsCard(
                                     article = article,
@@ -142,7 +184,7 @@ fun Home(viewModel: NewsFeedViewModel) {
                             }
                         }
 
-                        if(pagingItems.loadState.append is LoadState.Loading) {
+                        if (padingItems.loadState.append is LoadState.Loading) {
                             item {
                                 Box(
                                     modifier = Modifier.fillMaxWidth(),
@@ -155,7 +197,7 @@ fun Home(viewModel: NewsFeedViewModel) {
                                 }
                             }
                         }
-                        if (pagingItems.loadState.append is LoadState.Error){
+                        if (padingItems.loadState.append is LoadState.Error) {
                             item {
                                 Column(
                                     modifier = Modifier.fillMaxWidth(),
@@ -169,7 +211,7 @@ fun Home(viewModel: NewsFeedViewModel) {
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Button(
-                                        onClick = {pagingItems.retry()},
+                                        onClick = { padingItems.retry() },
                                         shape = RoundedCornerShape(12.dp)
                                     ) {
                                         Text("Повторить")

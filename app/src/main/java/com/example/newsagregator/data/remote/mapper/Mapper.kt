@@ -7,16 +7,17 @@ import java.text.SimpleDateFormat
 
 object Mapper {
 
-    fun Article.toEntity(category: String): ArticleEntity = ArticleEntity(
+    fun Article.toEntity(category: String, searchQuery: String = ""): ArticleEntity = ArticleEntity(
         url = url,
-        title = title,
+        title = title ?: "",
         description = description ?: "",
         content = content ?: "",
         imageUrl = urlToImage ?: " ",
         publishedAt = publishedAt.toTimeStamp(),
-        sourceName = source.name,
+        sourceName = source.name ?: "",
         category = category,
-        isFavorite = false
+        isFavorite = false,
+        searchQuery = searchQuery
     )
 
     fun String.toTimeStamp(): Long {

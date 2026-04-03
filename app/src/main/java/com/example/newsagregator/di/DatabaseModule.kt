@@ -18,6 +18,8 @@ class DatabaseModule {
             context = context,
             klass = ArticleDataBase::class.java,
             name = "articles_db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 }

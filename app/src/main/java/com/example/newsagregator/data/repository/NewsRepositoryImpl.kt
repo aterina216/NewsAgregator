@@ -9,7 +9,8 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.example.newsagregator.data.db.database.ArticleDataBase
 import com.example.newsagregator.data.db.mapper.Mapper.toDomain
-import com.example.newsagregator.data.remote.NewsRemoteMediator
+import com.example.newsagregator.data.mediators.NewsRemoteMediator
+import com.example.newsagregator.data.mediators.SearchRemoteMediator
 import com.example.newsagregator.data.remote.api.NewsApi
 import com.example.newsagregator.domain.models.Article
 import com.example.newsagregator.domain.repository.NewsRepository
@@ -34,6 +35,19 @@ class NewsRepositoryImpl @Inject constructor(
             pagingSourceFactory()
         }.flow.map {
             pagingData -> pagingData.map { it.toDomain() }
+        }
+    }
+
+    @kotlin.OptIn(ExperimentalPagingApi::class)
+    override fun searchNews(query: String): Flow<PagingData<Article>> {
+        val pagingSourceFactory = {database.getDao().getArticlesBySearchQuery(query)}
+        return Pager(
+            config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+            remoteMediator = SearchRemoteMediator(api, database, query)
+        ) {
+            pagingSourceFactory()
+        }.flow.map { pagingData ->
+            pagingData.map { it.toDomain() }
         }
     }
 }

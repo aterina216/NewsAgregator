@@ -50,4 +50,12 @@ class NewsRepositoryImpl @Inject constructor(
             pagingData.map { it.toDomain() }
         }
     }
+
+    override suspend fun getArticleByUrl(url: String): Article? {
+        val entity = database.getDao().selectArticleByUrl(url)
+        if (entity != null) {
+            return entity.toDomain()
+        }
+        else return null
+    }
 }

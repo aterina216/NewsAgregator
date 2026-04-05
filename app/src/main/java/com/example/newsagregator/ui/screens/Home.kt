@@ -29,6 +29,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,11 +47,14 @@ import com.example.newsagregator.ui.components.NewsCard
 import com.example.newsagregator.ui.viewmodels.NewsFeedViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
+import androidx.navigation.navArgument
 import com.example.newsagregator.ui.components.CategoryChips
+import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Home(viewModel: NewsFeedViewModel) {
+fun Home(viewModel: NewsFeedViewModel, navController: NavController) {
 
     val categories = Categories.values().map { it.named }
     val selectedCategory by viewModel.selectedCategory.collectAsState()
@@ -179,7 +183,10 @@ fun Home(viewModel: NewsFeedViewModel) {
                             if (article != null) {
                                 NewsCard(
                                     article = article,
-                                    onClick = { /* переход к деталям */ }
+                                    onClick = {
+                                        val encodedUrl = URLEncoder.encode(article.url, "utf-8")
+                                        navController.navigate("article/$encodedUrl")
+                                    }
                                 )
                             }
                         }

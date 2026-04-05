@@ -31,4 +31,7 @@ interface ArticleDao {
 
     @Query("SELECT * FROM articles WHERE searchQuery = :query ORDER BY publishedAt DESC")
     fun getArticlesBySearchQuery(query: String): PagingSource<Int, ArticleEntity>
+
+    @Query("SELECT * FROM articles WHERE url =:url")
+    suspend fun selectArticleByUrl(url: String): ArticleEntity?
 }

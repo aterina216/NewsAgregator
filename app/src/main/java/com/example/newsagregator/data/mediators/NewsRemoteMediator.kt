@@ -48,7 +48,7 @@ class NewsRemoteMediator(
 
             Log.d("RemoteMediator", "Response code: ${response.code()}")
             if (!response.isSuccessful) {
-                Log.e("RemoteMediator", "Error body: ${response.errorBody()?.string()}")
+                return MediatorResult.Success(endOfPaginationReached = true)
             }
 
             val articles = response.body()?.articles ?: emptyList()
@@ -69,11 +69,11 @@ class NewsRemoteMediator(
         }
         catch (e: IOException) {
             Log.e("RemoteMediator", "IOException: ${e.message}", e)
-            MediatorResult.Error(e)
+            MediatorResult.Success(endOfPaginationReached = true)
         }
         catch (e: HttpException) {
             Log.e("RemoteMediator", "HttpException: ${e.message}, code: ${e.code()}", e)
-            MediatorResult.Error(e)
+            MediatorResult.Success(endOfPaginationReached = true)
         }
     }
 }

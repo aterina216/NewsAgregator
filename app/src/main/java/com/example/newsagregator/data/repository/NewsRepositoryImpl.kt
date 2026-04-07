@@ -58,4 +58,33 @@ class NewsRepositoryImpl @Inject constructor(
         }
         else return null
     }
+
+    override suspend fun addToFavorites(article: Article) {
+        database.getDao().setFavorite(article.url, true)
+    }
+
+    override suspend fun removeFromFavorites(article: Article) {
+        database.getDao().setFavorite(article.url, false)
+    }
+
+    override fun getFavoriteArticles(): Flow<PagingData<Article>> {
+        val pagingSourceFactory = {
+            database.getDao().getAllFavoritesArticles()
+        }
+        return Pager(
+            config = PagingConfig(pageSize = 20, enablePlaceholders = false)
+        ) {
+            pagingSourceFactory()
+        }.flow.map {
+            pagingData ->
+            pagingData.map { it.toDomain() }
+        }
+
+    }
+
+    override fun getArticleFavoriteState(url: String): Flow<Boolean> {
+        return database.getDao().getFavoriteStatus(url).map {
+            it ?: false
+        }
+    }
 }

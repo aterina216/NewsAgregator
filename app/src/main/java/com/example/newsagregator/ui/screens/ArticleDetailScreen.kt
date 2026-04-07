@@ -27,13 +27,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.myapplication.R
 import com.example.newsagregator.ui.viewmodels.NewsFeedViewModel
 import com.example.newsagregator.utils.Format.formatDate
 
@@ -46,9 +49,11 @@ fun ArticleDetailScreen(
 ) {
     val article by viewModel.currentArticle.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val isFavorite by viewModel.isFavorite.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getArticleByUrl(url)
+        viewModel.loadFavoriteStatus(url)
     }
 
     Scaffold(
@@ -60,6 +65,23 @@ fun ArticleDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            if (article != null) {
+                                viewModel.toggleFavorite(article!!, isFavorite)
+                            }
+                        }
+                    ) {
+                        Icon(
+                            painter = if (isFavorite) painterResource(R.drawable.baseline_favorite_24)
+                            else painterResource(R.drawable.outline_favorite_24),
+                            contentDescription = if (isFavorite) "Удалить из избранного"
+                            else "Добавить в избранное",
+                            tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             )

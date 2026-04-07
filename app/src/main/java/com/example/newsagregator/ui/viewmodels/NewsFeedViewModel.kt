@@ -3,14 +3,18 @@ package com.example.newsagregator.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.room.util.query
 import com.example.newsagregator.data.repository.NewsRepositoryImpl
 import com.example.newsagregator.domain.models.Article
 import com.example.newsagregator.domain.repository.NewsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
@@ -29,6 +33,12 @@ class NewsFeedViewModel(private val repository: NewsRepository): ViewModel() {
 
     private var _isLoading = MutableStateFlow<Boolean>(false)
     val isLoading: StateFlow<Boolean> = _isLoading
+
+    private var _favoriteArticles = MutableStateFlow<PagingData<Article>>(PagingData.empty())
+    val favoriteArticles: StateFlow<PagingData<Article>> = _favoriteArticles.asStateFlow()
+
+    private var _isFavorite = MutableStateFlow(false)
+    val isFavorite: StateFlow<Boolean> = _isFavorite.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val news = _selectedCategory.flatMapLatest {
@@ -59,6 +69,7 @@ class NewsFeedViewModel(private val repository: NewsRepository): ViewModel() {
 
     init {
         Log.d("ViewModel", "NewsFeedViewModel создан")
+        loadFavorites()
     }
 
     fun getArticleByUrl(url: String) {
@@ -71,6 +82,39 @@ class NewsFeedViewModel(private val repository: NewsRepository): ViewModel() {
             catch (e: Exception) {
                 _isLoading.value = false
                 Log.e("ViewModel", "${e.stackTrace}")
+            }
+        }
+    }
+
+    fun loadFavorites() {
+        viewModelScope.launch {
+            repository.getFavoriteArticles().collectLatest {
+                pagingData ->
+                _favoriteArticles.value = pagingData
+            }
+        }
+    }
+
+    fun toggleFavorite(article: Article, isFavorite: Boolean) {
+        viewModelScope.launch {
+            if(isFavorite) {
+                repository.removeFromFavorites(article)
+            }
+            else {
+                repository.addToFavorites(article)
+            }
+        }
+    }
+
+    fun getArticleFavoriteState(url: String): Flow<Boolean> {
+        return repository.getArticleFavoriteState(url)
+    }
+
+    fun loadFavoriteStatus(url: String) {
+        viewModelScope.launch {
+            repository.getArticleFavoriteState(url).collect {
+                favorite ->
+                _isFavorite.value = favorite
             }
         }
     }

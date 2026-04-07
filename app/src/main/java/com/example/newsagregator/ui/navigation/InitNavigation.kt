@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.newsagregator.ui.components.BottomNavigationBar
 import com.example.newsagregator.ui.screens.ArticleDetailScreen
+import com.example.newsagregator.ui.screens.FavoritesScreen
 import com.example.newsagregator.ui.screens.Home
 
 @Composable
@@ -42,6 +43,9 @@ fun InitNavigation(viewmodel: NewsFeedViewModel) {
                     url = url,                     // передайте url в экран
                     onBackPressed = { navController.popBackStack() }
                 )
+            }
+            composable("favorites") {
+                FavoritesScreen(viewmodel, navController)
             }
         }
     }

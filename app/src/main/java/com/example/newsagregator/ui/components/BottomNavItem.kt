@@ -12,4 +12,9 @@ sealed class BottomNavItem(
     object Home: BottomNavItem("home", "Главная",
         R.drawable.outline_home_24, R.drawable.round_home_24
     )
+
+    object Favorites: BottomNavItem("favorites", "Избранное",
+        R.drawable.outline_favorite_24, R.drawable.baseline_favorite_24)
+
+
 }

@@ -10,4 +10,10 @@ interface NewsRepository {
     fun searchNews(query: String): Flow<PagingData<Article>>
 
     suspend fun getArticleByUrl(url: String): Article?
+
+    suspend fun addToFavorites(article: Article)
+    suspend fun removeFromFavorites(article: Article)
+    fun getFavoriteArticles(): Flow<PagingData<Article>>
+
+    fun getArticleFavoriteState(url: String): Flow<Boolean>
 }

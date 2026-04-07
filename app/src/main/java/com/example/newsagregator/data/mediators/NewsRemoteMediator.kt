@@ -10,8 +10,11 @@ import com.example.newsagregator.data.db.database.ArticleDataBase
 import com.example.newsagregator.data.db.entities.ArticleEntity
 import com.example.newsagregator.data.remote.api.NewsApi
 import com.example.newsagregator.data.remote.mapper.Mapper.toEntity
+import com.example.newsagregator.domain.models.Article
+import kotlinx.coroutines.flow.Flow
 import okio.IOException
 import retrofit2.HttpException
+import kotlin.collections.emptyList
 
 @OptIn(ExperimentalPagingApi::class)
 class NewsRemoteMediator(
@@ -55,10 +58,24 @@ class NewsRemoteMediator(
             val entities = articles.map { it.toEntity(category) }
 
             database.withTransaction {
+
+                val existingFavorites = if (loadType == LoadType.REFRESH) {
+                    database.getDao().getFavoritesUrls()
+                }  else emptyList()
+
+
                 if (loadType == LoadType.REFRESH) {
                     database.getDao().clearCategory(category)
                 }
-                database.getDao().insertAll(entities)
+
+                val entitiesWitfFavorites = entities.map {
+                    entity ->
+                    if(existingFavorites.contains(entity.url)) {
+                        entity.copy(isFavorite = true)
+                    } else entity
+                }
+
+                database.getDao().insertAll(entitiesWitfFavorites)
             }
 
             if(articles.isNotEmpty()) {

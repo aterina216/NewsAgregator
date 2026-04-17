@@ -9,5 +9,6 @@ data class Article(
     val publishedAt: Long,
     val sourceName: String,
     val category: String,
-    val isFavorite: Boolean
+    val isFavorite: Boolean,
+    var viewAt: Long = 0L
 )

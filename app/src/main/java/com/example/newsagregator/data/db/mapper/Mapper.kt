@@ -14,6 +14,7 @@ object Mapper {
         publishedAt = publishedAt,
         sourceName = sourceName,
         category = category,
-        isFavorite = isFavorite
+        isFavorite = isFavorite,
+        viewAt = viewAt
     )
 }

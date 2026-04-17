@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import com.example.newsagregator.ui.components.BottomNavigationBar
 import com.example.newsagregator.ui.screens.ArticleDetailScreen
 import com.example.newsagregator.ui.screens.FavoritesScreen
+import com.example.newsagregator.ui.screens.HistoryScreen
 import com.example.newsagregator.ui.screens.Home
 
 @Composable
@@ -46,6 +47,9 @@ fun InitNavigation(viewmodel: NewsFeedViewModel) {
             }
             composable("favorites") {
                 FavoritesScreen(viewmodel, navController)
+            }
+            composable("history") {
+                HistoryScreen(viewmodel, navController)
             }
         }
     }

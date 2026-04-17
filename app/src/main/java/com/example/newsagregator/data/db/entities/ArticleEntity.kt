@@ -15,5 +15,6 @@ data class ArticleEntity(
     val sourceName: String,
     val category: String,
     var searchQuery: String = "",
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    var viewAt: Long = 0L
 )

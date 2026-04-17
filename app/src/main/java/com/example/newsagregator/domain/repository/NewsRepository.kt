@@ -16,4 +16,10 @@ interface NewsRepository {
     fun getFavoriteArticles(): Flow<PagingData<Article>>
 
     fun getArticleFavoriteState(url: String): Flow<Boolean>
+
+    suspend fun updateViewAt(viewAt: Long, url: String)
+
+    fun getHistoryArticles(): Flow<PagingData<Article>>
+
+    suspend fun clearHistory()
 }

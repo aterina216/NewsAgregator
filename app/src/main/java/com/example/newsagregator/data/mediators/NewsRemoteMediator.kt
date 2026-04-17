@@ -59,23 +59,31 @@ class NewsRemoteMediator(
 
             database.withTransaction {
 
-                val existingFavorites = if (loadType == LoadType.REFRESH) {
-                    database.getDao().getFavoritesUrls()
-                }  else emptyList()
+                val existingViewAtMap = if (loadType == LoadType.REFRESH) {
+                    database.getDao().getViewAtByCategory(category)
+                        .associate { it.url to it.viewAt }
+                } else {
+                    emptyMap()
+                }
 
+                val favoriteUrls = database.getDao().getFavoritesUrls().toSet()
+
+                val restoredEntities = entities.map { entity ->
+                    var newEntity = entity
+                    if (favoriteUrls.contains(entity.url)) {
+                        newEntity = newEntity.copy(isFavorite = true)
+                    }
+                    val oldViewAt = existingViewAtMap[entity.url]
+                    if (oldViewAt != null && oldViewAt > 0) {
+                        newEntity = newEntity.copy(viewAt = oldViewAt)
+                    }
+                    newEntity
+                }
 
                 if (loadType == LoadType.REFRESH) {
                     database.getDao().clearCategory(category)
                 }
-
-                val entitiesWitfFavorites = entities.map {
-                    entity ->
-                    if(existingFavorites.contains(entity.url)) {
-                        entity.copy(isFavorite = true)
-                    } else entity
-                }
-
-                database.getDao().insertAll(entitiesWitfFavorites)
+                database.getDao().insertAll(restoredEntities)
             }
 
             if(articles.isNotEmpty()) {

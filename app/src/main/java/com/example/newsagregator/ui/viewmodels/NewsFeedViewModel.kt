@@ -40,6 +40,9 @@ class NewsFeedViewModel(private val repository: NewsRepository): ViewModel() {
     private var _isFavorite = MutableStateFlow(false)
     val isFavorite: StateFlow<Boolean> = _isFavorite.asStateFlow()
 
+    private var _historyArticles = MutableStateFlow<PagingData<Article>>(PagingData.empty())
+    val historyArticles: StateFlow<PagingData<Article>> = _historyArticles.asStateFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val news = _selectedCategory.flatMapLatest {
         category ->
@@ -70,6 +73,7 @@ class NewsFeedViewModel(private val repository: NewsRepository): ViewModel() {
     init {
         Log.d("ViewModel", "NewsFeedViewModel создан")
         loadFavorites()
+        loadHistory()
     }
 
     fun getArticleByUrl(url: String) {
@@ -116,6 +120,32 @@ class NewsFeedViewModel(private val repository: NewsRepository): ViewModel() {
                 favorite ->
                 _isFavorite.value = favorite
             }
+        }
+    }
+
+    suspend fun updateViewAt(viewAt: Long, url: String) {
+        viewModelScope.launch {
+            try {
+                repository.updateViewAt(viewAt, url)
+            }
+            catch (e: Exception) {
+                Log.d("viewmodel", "${e.message}")
+            }
+        }
+    }
+
+    fun loadHistory() {
+        viewModelScope.launch {
+            repository.getHistoryArticles().cachedIn(viewModelScope).collectLatest {
+                pagingData -> _historyArticles.value = pagingData
+            }
+        }
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch {
+            repository.clearHistory()
+            loadHistory()
         }
     }
 }

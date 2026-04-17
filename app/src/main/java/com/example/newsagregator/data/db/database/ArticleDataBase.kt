@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.example.newsagregator.data.db.dao.ArticleDao
 import com.example.newsagregator.data.db.entities.ArticleEntity
 
-@Database(entities = [ArticleEntity::class], version = 2, exportSchema =  false)
+@Database(entities = [ArticleEntity::class], version = 3, exportSchema =  false)
 abstract class ArticleDataBase: RoomDatabase() {
 
     abstract fun getDao(): ArticleDao

@@ -17,4 +17,7 @@ sealed class BottomNavItem(
         R.drawable.outline_favorite_24, R.drawable.baseline_favorite_24)
 
 
+    object History: BottomNavItem("history", "История",
+        R.drawable.rounded_history_2_24, R.drawable.baseline_history_24
+    )
 }

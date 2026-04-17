@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.newsagregator.data.db.entities.ArticleEntity
+import com.example.newsagregator.data.db.entities.UrlAndViewAt
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -47,4 +48,16 @@ interface ArticleDao {
 
     @Query("SELECT url FROM articles WHERE isFavorite = 1")
     suspend fun getFavoritesUrls(): List<String>
+
+    @Query("UPDATE articles SET viewAt =:viewAt WHERE url =:url")
+    suspend fun updateViewAt(viewAt: Long, url: String)
+
+    @Query("SELECT url, viewAt FROM articles WHERE category = :category")
+    suspend fun getViewAtByCategory(category: String): List<UrlAndViewAt>
+
+    @Query("SELECT * FROM articles WHERE viewAt > 0 ORDER BY viewAt DESC")
+    fun getHistory(): PagingSource<Int, ArticleEntity>
+
+    @Query("DELETE FROM articles WHERE viewAt > 0")
+    suspend fun clearHistory()
 }

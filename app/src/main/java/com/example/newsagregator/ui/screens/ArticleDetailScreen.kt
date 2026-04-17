@@ -56,6 +56,12 @@ fun ArticleDetailScreen(
         viewModel.loadFavoriteStatus(url)
     }
 
+    LaunchedEffect(article) {
+        if(article != null) {
+            viewModel.updateViewAt(System.currentTimeMillis(), article!!.url)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

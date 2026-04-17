@@ -87,4 +87,26 @@ class NewsRepositoryImpl @Inject constructor(
             it ?: false
         }
     }
+
+    override suspend fun updateViewAt(viewAt: Long, url: String) {
+        return database.getDao().updateViewAt(viewAt, url)
+    }
+
+    override fun getHistoryArticles(): Flow<PagingData<Article>> {
+        val pagingSourceFactory = {
+            database.getDao().getHistory()
+        }
+        return Pager(
+            config = PagingConfig(pageSize = 20, enablePlaceholders = false)
+        ) {
+            pagingSourceFactory()
+        }.flow.map {
+            pagingData ->
+            pagingData.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun clearHistory() {
+        database.getDao().clearHistory()
+    }
 }

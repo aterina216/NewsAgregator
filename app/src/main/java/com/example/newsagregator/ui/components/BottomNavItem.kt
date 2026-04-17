@@ -20,4 +20,8 @@ sealed class BottomNavItem(
     object History: BottomNavItem("history", "История",
         R.drawable.rounded_history_2_24, R.drawable.baseline_history_24
     )
+
+    object Settings: BottomNavItem("settings", "Настройки",
+        R.drawable.outline_settings_24, R.drawable.baseline_settings_24
+    )
 }

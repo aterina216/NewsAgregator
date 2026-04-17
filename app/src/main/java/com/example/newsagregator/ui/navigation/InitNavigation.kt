@@ -16,6 +16,7 @@ import com.example.newsagregator.ui.screens.ArticleDetailScreen
 import com.example.newsagregator.ui.screens.FavoritesScreen
 import com.example.newsagregator.ui.screens.HistoryScreen
 import com.example.newsagregator.ui.screens.Home
+import com.example.newsagregator.ui.screens.SettingsScreen
 
 @Composable
 fun InitNavigation(viewmodel: NewsFeedViewModel) {
@@ -50,6 +51,9 @@ fun InitNavigation(viewmodel: NewsFeedViewModel) {
             }
             composable("history") {
                 HistoryScreen(viewmodel, navController)
+            }
+            composable("settings") {
+                SettingsScreen()
             }
         }
     }

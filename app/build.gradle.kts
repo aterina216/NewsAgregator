@@ -119,4 +119,5 @@ dependencies {
     androidTestImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }

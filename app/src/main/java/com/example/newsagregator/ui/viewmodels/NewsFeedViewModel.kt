@@ -12,12 +12,14 @@ import com.example.newsagregator.domain.repository.NewsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class NewsFeedViewModel(private val repository: NewsRepository): ViewModel() {
@@ -92,10 +94,10 @@ class NewsFeedViewModel(private val repository: NewsRepository): ViewModel() {
 
     fun loadFavorites() {
         viewModelScope.launch {
-            repository.getFavoriteArticles().collectLatest {
-                pagingData ->
-                _favoriteArticles.value = pagingData
-            }
+            repository.getFavoriteArticles().cachedIn(viewModelScope)
+                .stateIn(scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = PagingData.empty())
         }
     }
 

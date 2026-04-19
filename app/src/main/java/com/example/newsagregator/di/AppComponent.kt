@@ -8,11 +8,12 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [DatabaseModule::class, NetworkModule::class, RepositoryModule::class, ViewModelFactoryModule::class])
+@Component(modules = [DatabaseModule::class, NetworkModule::class, RepositoryModule::class, ViewModelFactoryModule::class, ThemePrefsModule::class])
 interface AppComponent {
 
     fun  inject(app: NewsApp)
     fun inject(activity: MainActivity)
+
 
     @Component.Builder
     interface Builder {

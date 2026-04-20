@@ -2,6 +2,8 @@ package com.example.newsagregator.data.preferences
 
 import android.content.Context
 import androidx.datastore.dataStoreFile
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -14,6 +16,8 @@ class ThemePreferences(context: Context) {
     private val themeKey = intPreferencesKey("theme_mode")
 
     private val startDestKey = stringPreferencesKey("start_destination")
+
+    private val saveHistoryKey = booleanPreferencesKey("save_history")
 
     val themeFlow: Flow<ThemeMode> = dataStore.data.map {
         prefs ->
@@ -28,6 +32,11 @@ class ThemePreferences(context: Context) {
         prefs[startDestKey] ?: "home"
     }
 
+    val saveHistoryFlow: Flow<Boolean> = dataStore.data.map {
+        prefs ->
+        prefs[saveHistoryKey] ?: true
+    }
+
     suspend fun setTheme(mode: ThemeMode) {
         dataStore.edit {
             prefs ->
@@ -39,6 +48,13 @@ class ThemePreferences(context: Context) {
         dataStore.edit {
             prefs ->
             prefs[startDestKey] = route
+        }
+    }
+
+    suspend fun setSaveHistory(enabled: Boolean) {
+        dataStore.edit {
+            prefs ->
+            prefs[saveHistoryKey] = enabled
         }
     }
 }

@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.myapplication.R
+import com.example.newsagregator.data.preferences.ThemePreferences
 import com.example.newsagregator.ui.viewmodels.NewsFeedViewModel
 import com.example.newsagregator.utils.Format.formatDate
 
@@ -50,6 +52,9 @@ fun ArticleDetailScreen(
     val article by viewModel.currentArticle.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isFavorite by viewModel.isFavorite.collectAsState()
+    val context = LocalContext.current
+    val themePref = remember { ThemePreferences(context) }
+    val saveHistory by themePref.saveHistoryFlow.collectAsState(true)
 
     LaunchedEffect(Unit) {
         viewModel.getArticleByUrl(url)
@@ -57,10 +62,11 @@ fun ArticleDetailScreen(
     }
 
     LaunchedEffect(article) {
-        if(article != null) {
+        if(article != null && saveHistory) {
             viewModel.updateViewAt(System.currentTimeMillis(), article!!.url)
         }
     }
+
 
     Scaffold(
         topBar = {
